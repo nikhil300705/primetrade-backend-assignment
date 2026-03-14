@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Backend Assignment UI</title>
+
+<style>
+
+body{
+font-family: Arial, Helvetica, sans-serif;
+background:#f4f6f9;
+margin:0;
+padding:40px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+}
+
+h1{
+text-align:center;
+margin-bottom:40px;
+}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:25px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:8px;
+margin-bottom:12px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+background:#4CAF50;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#45a049;
+}
+
+ul{
+padding-left:20px;
+}
+
+.task{
+background:#f1f1f1;
+padding:8px;
+margin-top:6px;
+border-radius:5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Backend Assignment Dashboard</h1>
+
+<div class="card">
+<h2>Register</h2>
+
+<input id="regName" placeholder="Name">
+<input id="regEmail" placeholder="Email">
+<input id="regPassword" placeholder="Password">
+
+<button onclick="register()">Register</button>
+</div>
+
+
+<div class="card">
+<h2>Login</h2>
+
+<input id="loginEmail" placeholder="Email">
+<input id="loginPassword" placeholder="Password">
+
+<button onclick="login()">Login</button>
+</div>
+
+
+<div class="card">
+<h2>Create Task</h2>
+
+<input id="taskTitle" placeholder="Task title">
+<input id="taskDesc" placeholder="Task description">
+
+<button onclick="createTask()">Create Task</button>
+</div>
+
+
+<div class="card">
+<h2>Tasks</h2>
+
+<button onclick="getTasks()">Load Tasks</button>
+
+<ul id="taskList"></ul>
+</div>
+
+</div>
+
+<script>
+
+let token=""
+
+async function register(){
+
+const res=await fetch("http://localhost:8000/api/v1/auth/register",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name:document.getElementById("regName").value,
+email:document.getElementById("regEmail").value,
+password:document.getElementById("regPassword").value
+})
+})
+
+const data=await res.json()
+
+alert("User registered")
+console.log(data)
+
+}
+
+
+
+async function login(){
+
+const res=await fetch("http://localhost:8000/api/v1/auth/login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email:document.getElementById("loginEmail").value,
+password:document.getElementById("loginPassword").value
+})
+})
+
+const data=await res.json()
+
+token=data.token
+
+alert("Login successful")
+
+}
+
+
+
+async function createTask(){
+
+const res=await fetch("http://localhost:8000/api/v1/tasks",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+token
+},
+body:JSON.stringify({
+title:document.getElementById("taskTitle").value,
+description:document.getElementById("taskDesc").value
+})
+})
+
+const data=await res.json()
+
+console.log(data)
+
+alert("Task created")
+
+}
+
+
+
+async function getTasks(){
+
+const res=await fetch("http://localhost:8000/api/v1/tasks",{
+headers:{
+"Authorization":"Bearer "+token
+}
+})
+
+const tasks=await res.json()
+
+const list=document.getElementById("taskList")
+
+list.innerHTML=""
+
+tasks.forEach(task=>{
+
+const li=document.createElement("li")
+li.className="task"
+
+li.innerText=task.title+" - "+task.description
+
+list.appendChild(li)
+
+})
+
+}
+
+</script>
+
+</body>
+</html>
